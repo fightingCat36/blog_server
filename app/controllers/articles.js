@@ -15,9 +15,45 @@ class ArticlesCtl {
         const selectFields = fields.split(';').filter(item => item).map(item => ` +${item}`).join('')
         const article = await User.findById(ctx.params.id).select(selectFields).populate('fullText')
         if (!article) {
-            ctx.throw(404, 'Article not exsit!!')
+            ctx.throw(404, 'Article does not exsit!!')
         }
         ctx.body = article
+    }
+
+    // 新建一篇文章
+    async create (ctx) {
+        ctx.verifyParams({
+            title: { type: 'string', required: true },
+            fullText: { type: 'string', require: true }
+        })
+        const article = await new Article(ctx.request.body).save()
+        ctx.body = article
+    }
+
+    // 修改一篇文章
+    async update (ctx) {
+        ctx.verifyParams({
+            keyword: {type: 'string', required: false },
+            title: { type: 'string', required: false  },
+            description: { type: 'string', required: false },
+            cover: { type: 'string', required: false },
+            fullText: { type: 'string', required: false }
+        })
+
+        const article = await Article.findByIdAndUpdate(ctx.params.id, ctx.request.body)
+        if (!article) {
+            ctx.throw(404, 'Article does not exist!!')
+        }
+        ctx.body = article
+    }
+
+    // 通过id删除一篇文章
+    async deleteById (ctx) {
+        const article = await Article.findByIdAndRemove(ctx.params.id)
+        if (!article) {
+            ctx.throw(404, 'Article does not exist!!')
+        }
+        ctx.status = 204
     }
 }
 
