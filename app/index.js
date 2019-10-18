@@ -3,6 +3,7 @@ const mongoose = require('mongoose')
 const error = require('koa-json-error')
 const koaBody = require('koa-body')
 const parameter = require('koa-parameter')
+const path = require('path')
 
 const Logger = require('./util')
 const { connectUrl } = require('./config')
@@ -23,7 +24,13 @@ app.use(error({
     postFormat: (error, {stack, ...rest}) => process.env.NODE_ENV === 'production' ? rest : {stack, ...rest}
 }))
 
-app.use(koaBody())
+app.use(koaBody({
+    multipart: true,
+    formidable: {
+        uploadDir: path.join(__dirname, '/public/uploads'),
+        keepExtensions: true
+    }
+}))
 
 // 可以解析路由参数
 app.use(parameter(app))
